@@ -1,0 +1,13 @@
+{
+    "name": "harta-notari",
+    "devDependencies": {
+        "@types/mime": "^2.0.3",
+        "@types/node": "^10.0.0"
+    },
+    "dependencies": {
+        "@pulumi/aws": "^4.13.0",
+        "@pulumi/awsx": "^0.30.0",
+        "@pulumi/pulumi": "^3.0.0",
+        "mime": "^2.5.2"
+    }
+}
