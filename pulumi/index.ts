@@ -32,6 +32,39 @@ function uploadDirToS3(source: string, destination: string, bucket: aws.s3.Bucke
 
 uploadDirToS3("www", "", bucket)
 
+// Configure IAM so that the AWS Lambda can be run.
+const rawCsvHandlerRole = new aws.iam.Role("rawCsvHandlerRole", {
+   assumeRolePolicy: {
+      Version: "2012-10-17",
+      Statement: [{
+         Action: "sts:AssumeRole",
+         Principal: {
+            Service: "lambda.amazonaws.com",
+         },
+         Effect: "Allow",
+         Sid: "",
+      }],
+   },
+});
+new aws.iam.RolePolicyAttachment("rawCsvHandlerFuncRoleAttach", {
+   role: rawCsvHandlerRole,
+   policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+});
+
+// Next, create the Lambda function itself:
+const rawCsvFunction = new aws.lambda.Function("rawCsvFunction", {
+   // Upload the code for our Lambda from the directory:
+   code: new pulumi.asset.AssetArchive({
+      ".": new pulumi.asset.FileArchive("./deployables/s3-java.zip"),
+   }),
+   handler: "example.RawCsvHandler",
+   runtime: "java8",
+   role: rawCsvHandlerRole.arn,
+});
+
+// Finally, register the Lambda to fire when a new Object arrives:
+bucket.onObjectCreated("onObjectCreate_rawCsvFunction", rawCsvFunction);
+
 exports.bucketName = bucket.bucket; // create a stack export for bucket name
 
 
