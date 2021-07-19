@@ -57,9 +57,11 @@ const rawCsvFunction = new aws.lambda.Function("rawCsvFunction", {
    code: new pulumi.asset.AssetArchive({
       ".": new pulumi.asset.FileArchive("./deployables/s3-java.zip"),
    }),
-   handler: "example.RawCsvHandler",
+   handler: "example.HandlerForAddressNormalization",
    runtime: "java8",
    role: rawCsvHandlerRole.arn,
+   timeout: 120,
+   memorySize: 256
 });
 
 // Finally, register the Lambda to fire when a new Object arrives:

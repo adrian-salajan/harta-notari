@@ -18,13 +18,15 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-api:2.13.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.13.0'
     implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.13.0'
+
+    implementation group: 'com.opencsv', name: 'opencsv', version: '5.5'
     runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.2.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
 }
 
 test {
-   // useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 task packageBig(type: Zip) {
