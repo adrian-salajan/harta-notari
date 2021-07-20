@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-// RawCsvHandler value: example.RawCsvHandler
 public class HandlerForAddressNormalization implements RequestHandler<S3Event, String> {
 
   private static final Logger logger = LoggerFactory.getLogger(HandlerForAddressNormalization.class);
