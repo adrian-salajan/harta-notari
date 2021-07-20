@@ -1,5 +1,8 @@
 deploy:
 	sh ./deploy.sh
 
-upload-notari-raw:
-	sh ./upload-notari-raw.sh
+upload-notari-data:
+	sh ./upload-notari-data.sh
+
+destroy:
+	sh ./destroy.sh

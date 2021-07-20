@@ -6,10 +6,11 @@ import * as mi from 'mime'
 import * as paths from 'path'
 
 // Create an AWS resource (S3 Bucket)
-const bucket = new aws.s3.Bucket("harta-notari-bucket");
+const webBucket = new aws.s3.Bucket("harta-notari-web");
+const dataBucket = new aws.s3.Bucket("harta-notari-data");
 
 // Export the name of the bucket
-export const bucketName = bucket.id;
+//export const bucketName = bucket.id;
 
 
 function uploadDirToS3(source: string, destination: string, bucket: aws.s3.Bucket) {
@@ -30,10 +31,10 @@ function uploadDirToS3(source: string, destination: string, bucket: aws.s3.Bucke
     }
 }
 
-uploadDirToS3("www", "", bucket)
+// uploadDirToS3("www", "", webBucket)
 
 // Configure IAM so that the AWS Lambda can be run.
-const rawCsvHandlerRole = new aws.iam.Role("rawCsvHandlerRole", {
+const normalizeAddressesLamdaRole = new aws.iam.Role("normalizeAddressesLamdaRole", {
    assumeRolePolicy: {
       Version: "2012-10-17",
       Statement: [{
@@ -42,13 +43,31 @@ const rawCsvHandlerRole = new aws.iam.Role("rawCsvHandlerRole", {
             Service: "lambda.amazonaws.com",
          },
          Effect: "Allow",
-         Sid: "",
+         Sid: "AllowLambdaRun",
       }],
    },
 });
-new aws.iam.RolePolicyAttachment("rawCsvHandlerFuncRoleAttach", {
-   role: rawCsvHandlerRole,
+new aws.iam.RolePolicyAttachment("assignLambdaExecutionPolicy", {
+   role: normalizeAddressesLamdaRole,
    policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+});
+
+
+
+const lambdaReadFromHartaNotariData = new aws.iam.Policy("allowReadFromS3HartaNotariDataBucket", {
+   policy:  {
+      Version: "2012-10-17",
+      Statement: [{
+         Action: "s3:*",
+         Effect: "Allow",
+         Resource: [ "arn:aws:s3:::*"],
+         Sid: "AllowReadFromS3HartaNotariData",
+      }],
+   }
+})
+new aws.iam.RolePolicyAttachment("assignLambdaReadObjectPolicy", {
+   role: normalizeAddressesLamdaRole,
+   policyArn: lambdaReadFromHartaNotariData.arn,
 });
 
 // Next, create the Lambda function itself:
@@ -59,16 +78,17 @@ const rawCsvFunction = new aws.lambda.Function("rawCsvFunction", {
    }),
    handler: "example.HandlerForAddressNormalization",
    runtime: "java8",
-   role: rawCsvHandlerRole.arn,
+   role: normalizeAddressesLamdaRole.arn,
    timeout: 120,
    memorySize: 256
 });
 
 // Finally, register the Lambda to fire when a new Object arrives:
-bucket.onObjectCreated("onObjectCreate_rawCsvFunction", rawCsvFunction);
+dataBucket.onObjectCreated("onObjectCreate_rawCsvFunction", rawCsvFunction);
 
-exports.bucketName = bucket.bucket; // create a stack export for bucket name
-
-
+//exports.bucketName = bucket.bucket; // create a stack export for bucket name
 
 
+
+
+ 
