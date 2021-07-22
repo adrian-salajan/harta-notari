@@ -76,8 +76,8 @@ const rawCsvFunction = new aws.lambda.Function("rawCsvFunction", {
    code: new pulumi.asset.AssetArchive({
       ".": new pulumi.asset.FileArchive("./deployables/s3-java.zip"),
    }),
-   handler: "example.HandlerForAddressNormalization",
-   runtime: "java8",
+   handler: "example.api.HandlerForAddressNormalization",
+   runtime: "java11",
    role: normalizeAddressesLamdaRole.arn,
    timeout: 120,
    memorySize: 256

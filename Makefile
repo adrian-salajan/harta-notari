@@ -6,3 +6,6 @@ upload-notari-data:
 
 destroy:
 	sh ./destroy.sh
+
+clean:
+	sh ./clean.sh
