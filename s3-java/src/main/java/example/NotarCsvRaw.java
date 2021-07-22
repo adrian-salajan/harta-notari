@@ -15,13 +15,13 @@ public class NotarCsvRaw {
         this.city = city;
     }
 
-    @CsvBindByName(column = "Nume si prenume", required = true)
+    @CsvBindByName(column = "Nume si prenume", required = true, locale = "ro-RO", writeLocaleEqualsReadLocale = true)
     private String name;
 
-    @CsvBindByName(column = "Adresa sediu", required = false)
+    @CsvBindByName(column = "Adresa sediu", required = false, locale = "ro-RO", writeLocaleEqualsReadLocale = true)
     private String address;
 
-    @CsvBindByName(column = "Localitate", required = false)
+    @CsvBindByName(column = "Localitate", required = false, locale = "ro-RO", writeLocaleEqualsReadLocale = true)
     private String city;
 
     public String getName() {

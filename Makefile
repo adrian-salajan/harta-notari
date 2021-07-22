@@ -1,11 +1,14 @@
 deploy:
-	sh ./deploy.sh
+	sh ./scripts/deploy.sh
 
 upload-notari-data:
-	sh ./upload-notari-data.sh
+	sh ./scripts/upload-notari-data.sh
 
 destroy:
-	sh ./destroy.sh
+	sh ./scripts/destroy.sh
 
 clean:
-	sh ./clean.sh
+	sh ./scripts/clean.sh
+
+dl-normalized:
+	sh ./scripts/dl-normalized.sh
