@@ -6,3 +6,6 @@ pulumi/deployables
 build
 
 target/
+
+target
+.bsp
