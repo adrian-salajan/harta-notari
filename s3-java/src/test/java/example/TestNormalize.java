@@ -1,5 +1,6 @@
 package example;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -8,9 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TestNormalize {
 
+    @Disabled
     @Test
     void process() throws IOException {
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("notari-raw.csv");
+        
         System.out.println("parsing");
         var notari = NotariCsvRawParser.parse(is);
         System.out.println("normalising");
