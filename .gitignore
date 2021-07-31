@@ -8,4 +8,13 @@ build
 target/
 
 target
+.bloop
+.vscode
+.classpath
+.metals
+.settings
 .bsp
+metals.sbt
+.project
+*.iws
+*.code-workspace
