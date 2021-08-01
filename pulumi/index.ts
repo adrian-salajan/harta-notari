@@ -86,6 +86,53 @@ const rawCsvFunction = new aws.lambda.Function("rawCsvFunction", {
 // Finally, register the Lambda to fire when a new Object arrives:
 dataBucket.onObjectCreated("onObjectCreate_rawCsvFunction", rawCsvFunction);
 
+
+// A simple cluster to run our tasks in.
+const cluster = awsx.ecs.Cluster.getDefault();
+// A task which runs a containerized geocode job to extract coordinates
+const geocodeTask = new awsx.ecs.FargateTaskDefinition("geocodeTask", {
+   container: {
+       image: awsx.ecs.Image.fromPath("geocodeNotaries", "./docker-geocode-notaries"),
+       memoryReservation: 512,
+   },
+});
+
+
+dataBucket.onObjectCreated("onObjectCreate_normalizedUploaded",
+   new aws.lambda.CallbackFunction<aws.s3.BucketEvent, void>("normalizeUploaded", {
+      policies: [
+         aws.iam.ManagedPolicy.AWSLambdaExecute,                 // Provides access to logging and S3
+         aws.iam.ManagedPolicy.AmazonECSFullAccess,             // Required for lambda compute to be able to run Tasks
+     ],
+   callback: async bucketArgs => {
+      const normalizedCsv = bucketArgs.Records[0].s3.object.key
+      const bucket = bucketArgs.Records[0].s3.bucket
+
+      if (normalizedCsv.includes("notari-normalized.csv")) {
+         await geocodeTask.run({
+            cluster: cluster,
+            overrides: {
+               containerOverrides: [{
+                  name: "container",
+                  environment: [
+                     { name: "S3_BUCKET", value: bucket.arn },
+                     { name: "INPUT_NORMALIZED_CSV", value: normalizedCsv },
+                     { name: "OUTPUT_FILE", value: "notaries-geo.json" },
+                  ],
+               }],
+         },
+         });
+         console.log(`Running geocode task.`);
+      } else {
+         console.log(`Skipping geocode task for` + normalizedCsv);
+      }
+   }
+   }), {
+      filterPrefix: "notari-normalized",
+      filterSuffix: ".csv"
+   }
+)
+
 //exports.bucketName = bucket.bucket; // create a stack export for bucket name
 
 
