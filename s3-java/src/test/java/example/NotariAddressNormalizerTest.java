@@ -3,6 +3,8 @@ package example;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import example.model.NotariAddressNormalizer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,18 @@ class NotariAddressNormalizerTest {
     @Test
     void normalizedAddressSpecialChars() {
         assertEquals("șșșș țțțăăăă ââââîî îî", normalizer.normalizeAddress("șșșș țțțăăăă ââââîî îî"));
+
+    }
+
+    @Test
+    void normalized() {
+        assertEquals("soseaua mihai bravu", normalizer.normalizeAddress("ŞOS. MIHAI BRAVU"));
+
+    }
+
+    @Test
+    void removeFirstComma() {
+        assertEquals("sector 1, ", normalizer.normalizeAddress(", sector 1, "));
 
     }
 

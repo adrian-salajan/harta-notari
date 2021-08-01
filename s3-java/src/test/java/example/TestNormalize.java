@@ -1,7 +1,8 @@
 package example;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import example.model.NotariProcessor;
 
 import java.io.*;
 
@@ -9,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TestNormalize {
 
-    @Disabled
+    // @Disabled
     @Test
     void process() throws IOException {
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("notari-raw.csv");
@@ -17,9 +18,9 @@ class TestNormalize {
         System.out.println("parsing");
         var notari = NotariCsvRawParser.parse(is);
         System.out.println("normalising");
-        var notariNormalized = new NotariAddressNormalizer().normalized(notari);
-        System.out.println("writing to bytes");
-        var notariData = new NotariCsvNormalizedWriter().write(notariNormalized.stream());
+
+        var normalized = new NotariProcessor().process(notari);
+        var notariData = new NotariCsvNormalizedWriter().write(normalized);
         var normalizedFile = new File("notari-normalized.csv");
 
         if (normalizedFile.exists()) {

@@ -1,16 +1,17 @@
-package example;
-
-import example.api.HandlerForAddressNormalization;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+package example.model;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import example.NotarCsvNormalized;
+import example.NotarCsvRaw;
+import example.api.HandlerForAddressNormalization;
 
 public class NotariAddressNormalizer {
     public static final Locale LOCALE = Locale.forLanguageTag("ro-RO");
@@ -18,37 +19,38 @@ public class NotariAddressNormalizer {
     private static final Logger logger = LoggerFactory.getLogger(HandlerForAddressNormalization.class);
     static final List<Function<String, String>> normalizationRules = new ArrayList<>();
     static {
-        normalizationRules.add(n -> n.replaceFirst("bd\b.?", "bulevardul "));
-        normalizationRules.add(n -> n.replaceFirst("bdl\\.?", "bulevardul "));
+        normalizationRules.add(n -> n.replaceFirst("bd\\.", "bulevardul "));
+        normalizationRules.add(n -> n.replaceFirst("bdl\\.", "bulevardul "));
+        normalizationRules.add(n -> n.replaceFirst("bld\\.?", "bulevardul "));
         normalizationRules.add(n -> n.replaceFirst("b-dul", "bulevardul "));
         normalizationRules.add(n -> n.replaceFirst("bdul\\.?", "bulevardul "));
 
         normalizationRules.add(n -> n.replaceFirst("str\\.?", "strada "));
-        normalizationRules.add(n -> n.replaceFirst("\\u015Fos\\.?", "soseaua "));
-        normalizationRules.add(n -> n.replaceFirst("sos\\.?", "soseaua "));
+        normalizationRules.add(n -> n.replaceFirst("sos\\.", "soseaua "));
+        normalizationRules.add(n -> n.replaceFirst("\\u015Fos\\.", "soseaua "));
         normalizationRules.add(n -> n.replaceFirst("sttr\\.?", "strada "));
         normalizationRules.add(n -> n.replaceFirst("cap\\.?", "caporal "));
+        normalizationRules.add(n -> n.replaceFirst("g-ral\\.?", "general "));
+        normalizationRules.add(n -> n.replaceFirst("gen\\.?", "general "));
+        normalizationRules.add(n -> n.replaceFirst("cpt\\.?", "capitan "));
+        normalizationRules.add(n -> n.replaceFirst("^\\, ", ""));
         normalizationRules.add(n -> n.replaceAll(" +", " "));
     };
 
-    public List<NotarCsvNormalized> normalized(Stream<NotarCsvRaw> notari) {
+    public Stream<NotarCsvNormalized> normalized(Stream<NotarCsvRaw> notari) {
         var normalized =
                 notari
-//                        .parallel()
                         .filter(p -> p.getAddress() != null && !p.getAddress().trim().isEmpty())
                         .filter(p -> p.getCity() != null && !p.getCity().trim().isEmpty())
-                        .map(this::normalizeNotar)
-                        .collect(Collectors.toList());
+                        .map(this::normalizeNotar);
 
-        var size = normalized.size();
-        logger.info("Normalized notari count:" + size);
         return normalized;
     }
 
     public NotarCsvNormalized normalizeNotar(NotarCsvRaw n) {
-        var normalizedAddress = normalizeAddress(n.getAddress());
-        var normalizedWithoutCity = normalizedAddress.replace(n.getCity().toLowerCase(LOCALE), "");
-        return new NotarCsvNormalized(n.getName(), normalizedWithoutCity, n.getAddress(), n.getCity());
+        var addressWithoutCity = n.getAddress().toLowerCase().replace(n.getCity().toLowerCase(LOCALE), "");
+        var normalizedAddress = normalizeAddress(addressWithoutCity);
+        return new NotarCsvNormalized(n.getName(), normalizedAddress, n.getAddress(), n.getCity());
     }
 
 

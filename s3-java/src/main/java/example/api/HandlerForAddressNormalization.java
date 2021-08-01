@@ -10,9 +10,11 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import example.NotariAddressNormalizer;
+
 import example.NotariCsvNormalizedWriter;
 import example.NotariCsvRawParser;
+import example.model.NotariAddressNormalizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ public class HandlerForAddressNormalization implements RequestHandler<S3Event, S
         var notari = new NotariAddressNormalizer().normalized(NotariCsvRawParser.parse(objectData));
 
         logger.info("EVENT: Writing normalized notari");
-        var notariIS = new NotariCsvNormalizedWriter().write(notari.stream());
+        var notariIS = new NotariCsvNormalizedWriter().write(notari);
 
         logger.info("EVENT: Uploading normalized notari");
         uploadToS3(s3Client, srcBucket, s3Object.getObjectMetadata().getContentType(), notariIS);
