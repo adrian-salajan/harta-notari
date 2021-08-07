@@ -74,7 +74,7 @@ new aws.iam.RolePolicyAttachment("assignLambdaReadObjectPolicy", {
 const rawCsvFunction = new aws.lambda.Function("rawCsvFunction", {
    // Upload the code for our Lambda from the directory:
    code: new pulumi.asset.AssetArchive({
-      ".": new pulumi.asset.FileArchive("./deployables/s3-java.zip"),
+      ".": new pulumi.asset.FileArchive(".deployables/s3-java.zip"),
    }),
    handler: "example.api.HandlerForAddressNormalization",
    runtime: "java11",
@@ -98,8 +98,8 @@ const geocodeTask = new awsx.ecs.FargateTaskDefinition("geocodeTask", {
 });
 
 
-dataBucket.onObjectCreated("onObjectCreate_normalizedUploaded",
-   new aws.lambda.CallbackFunction<aws.s3.BucketEvent, void>("normalizeUploaded", {
+dataBucket.onObjectCreated("onObjectCreate_normalizedUploaded_startGeocode",
+   new aws.lambda.CallbackFunction<aws.s3.BucketEvent, void>("normalizedUploaded_startGeocode", {
       policies: [
          aws.iam.ManagedPolicy.AWSLambdaExecute,                 // Provides access to logging and S3
          aws.iam.ManagedPolicy.AmazonECSFullAccess,             // Required for lambda compute to be able to run Tasks
